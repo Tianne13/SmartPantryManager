@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -23,6 +24,38 @@ public class MainActivity extends AppCompatActivity {
     // the list and the "pantry is empty" message from activity_main.xml
     RecyclerView rvPantry;
     TextView tvEmptyMessage;
+
+    // I made this a variable of the class so the click listeners can use it too
+    ArrayList<PantryItem> pantryItems;
+
+    // runs when a row in the list is tapped, it opens the form in edit mode
+    private View.OnClickListener itemClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // find out which row was tapped
+            RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
+            int position = viewHolder.getAdapterPosition();
+            PantryItem item = pantryItems.get(position);
+
+            // send the id of the item to the form using the intent
+            Intent intent = new Intent(MainActivity.this, AddEditIngredientActivity.class);
+            intent.putExtra("itemId", item.getId());
+            startActivity(intent);
+        }
+    };
+
+    // runs when the Delete button on a row is tapped
+    private View.OnClickListener deleteClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
+            int position = viewHolder.getAdapterPosition();
+            PantryItem item = pantryItems.get(position);
+
+            // ask the user to confirm before deleting
+            confirmDelete(item);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // onResume runs every time the screen shows up again,
-    // so the list refreshes after I add something and come back
+    // so the list refreshes after I add, edit or delete something
     @Override
     protected void onResume() {
         super.onResume();
@@ -62,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
     // gets the items from the database and puts them in the list
     private void loadPantryList() {
         PantryDataSource dataSource = new PantryDataSource(this);
-        ArrayList<PantryItem> pantryItems;
 
         try {
             dataSource.open();
@@ -81,11 +113,48 @@ public class MainActivity extends AppCompatActivity {
                 // layout manager makes it a normal vertical list
                 rvPantry.setLayoutManager(new LinearLayoutManager(this));
                 PantryAdapter adapter = new PantryAdapter(pantryItems);
+
+                // give the adapter the click listeners BEFORE setting the adapter
+                adapter.setOnItemClickListener(itemClickListener);
+                adapter.setOnDeleteClickListener(deleteClickListener);
                 rvPantry.setAdapter(adapter);
             }
         } catch (Exception e) {
             // something went wrong with the database
             Toast.makeText(this, "Error retrieving pantry items", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    // shows a pop-up asking if the user is sure they want to delete
+    private void confirmDelete(PantryItem item) {
+        final PantryItem itemToDelete = item;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete ingredient")
+                .setMessage("Are you sure you want to delete " + item.getName() + "?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteItem(itemToDelete))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    // removes the item from the database and refreshes the list
+    private void deleteItem(PantryItem item) {
+        PantryDataSource dataSource = new PantryDataSource(this);
+        boolean didDelete = false;
+
+        try {
+            dataSource.open();
+            didDelete = dataSource.deletePantryItem(item.getId());
+            dataSource.close();
+        } catch (Exception e) {
+            didDelete = false;
+        }
+
+        if (didDelete) {
+            Toast.makeText(this, "Ingredient deleted", Toast.LENGTH_SHORT).show();
+            loadPantryList(); // refresh so the item disappears
+        } else {
+            Toast.makeText(this, "Could not delete the ingredient", Toast.LENGTH_LONG).show();
         }
     }
 }
