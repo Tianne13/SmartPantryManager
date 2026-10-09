@@ -82,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // when the Suggested Recipes button is clicked, open the recipes screen
+        Button btnSuggestedRecipes = findViewById(R.id.btnSuggestedRecipes);
+        btnSuggestedRecipes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SuggestedRecipesActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     // onResume runs every time the screen shows up again,
