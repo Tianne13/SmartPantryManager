@@ -22,7 +22,6 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
 
     RecyclerView rvRecipes;
     TextView tvNoRecipes;
-    Button btnBack;
 
     // the recipes that passed the strict matching
     ArrayList<Recipe> suggestedRecipes;
@@ -57,14 +56,30 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
         // connecting my variables to the views in the layout
         rvRecipes = findViewById(R.id.rvRecipes);
         tvNoRecipes = findViewById(R.id.tvNoRecipes);
-        btnBack = findViewById(R.id.btnBack);
 
-        // back button closes this screen and goes back to the pantry
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
+        initNavigationBar();
+    }
+
+    // the navigation bar at the bottom of the screen
+    private void initNavigationBar() {
+        Button btnNavPantry = findViewById(R.id.btnNavPantry);
+        Button btnNavRecipes = findViewById(R.id.btnNavRecipes);
+        Button btnNavSettings = findViewById(R.id.btnNavSettings);
+
+        // I am already on this screen so this button is switched off
+        btnNavRecipes.setEnabled(false);
+
+        btnNavPantry.setOnClickListener(v -> {
+            Intent intent = new Intent(SuggestedRecipesActivity.this, MainActivity.class);
+            // clear top stops android from making lots of copies of the same screen
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        });
+
+        btnNavSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(SuggestedRecipesActivity.this, SettingsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         });
     }
 

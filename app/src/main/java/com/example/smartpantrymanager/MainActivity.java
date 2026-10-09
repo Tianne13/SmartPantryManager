@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
         rvPantry = findViewById(R.id.rvPantry);
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
 
+        initNavigationBar();
+
         // when the Add Ingredient button is clicked, open the add form
         Button btnAddIngredient = findViewById(R.id.btnAddIngredient);
         btnAddIngredient.setOnClickListener(new View.OnClickListener() {
@@ -82,15 +84,28 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
 
-        // when the Suggested Recipes button is clicked, open the recipes screen
-        Button btnSuggestedRecipes = findViewById(R.id.btnSuggestedRecipes);
-        btnSuggestedRecipes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SuggestedRecipesActivity.class);
-                startActivity(intent);
-            }
+    // the navigation bar at the bottom of the screen
+    private void initNavigationBar() {
+        Button btnNavPantry = findViewById(R.id.btnNavPantry);
+        Button btnNavRecipes = findViewById(R.id.btnNavRecipes);
+        Button btnNavSettings = findViewById(R.id.btnNavSettings);
+
+        // I am already on this screen so this button is switched off
+        btnNavPantry.setEnabled(false);
+
+        btnNavRecipes.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SuggestedRecipesActivity.class);
+            // clear top stops android from making lots of copies of the same screen
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        });
+
+        btnNavSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         });
     }
 
