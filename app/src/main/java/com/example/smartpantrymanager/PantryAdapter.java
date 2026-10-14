@@ -1,5 +1,6 @@
 package com.example.smartpantrymanager;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 // adapter that shows each pantry item as a row in the list
 public class PantryAdapter extends RecyclerView.Adapter {
@@ -21,6 +25,9 @@ public class PantryAdapter extends RecyclerView.Adapter {
     private View.OnClickListener onItemClickListener;
     private View.OnClickListener onDeleteClickListener;
 
+    // true if the user turned on the expiring-soon alerts in Settings
+    private boolean expiryAlertsOn = false;
+
     // holds the views for one row
     public class PantryViewHolder extends RecyclerView.ViewHolder {
 
@@ -29,12 +36,16 @@ public class PantryAdapter extends RecyclerView.Adapter {
         public TextView tvExpiry;
         public Button btnDelete;
 
+        // I save the normal text colour so I can put it back after a red warning
+        public int defaultExpiryColor;
+
         public PantryViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvItemName);
             tvQuantity = itemView.findViewById(R.id.tvItemQuantity);
             tvExpiry = itemView.findViewById(R.id.tvItemExpiry);
             btnDelete = itemView.findViewById(R.id.btnDeleteItem);
+            defaultExpiryColor = tvExpiry.getCurrentTextColor();
 
             // I set the tag so the activity can find out which row was clicked
             itemView.setTag(this);
@@ -58,6 +69,11 @@ public class PantryAdapter extends RecyclerView.Adapter {
         onDeleteClickListener = listener;
     }
 
+    // MainActivity tells me if the expiry alerts are on or off
+    public void setExpiryAlertsOn(boolean alertsOn) {
+        expiryAlertsOn = alertsOn;
+    }
+
     // makes a new row from the item_pantry layout
     @NonNull
     @Override
@@ -76,11 +92,52 @@ public class PantryAdapter extends RecyclerView.Adapter {
         pvh.tvName.setText(item.getName());
         pvh.tvQuantity.setText("Quantity: " + item.getQuantity() + " " + item.getUnit());
 
-        // expiry date is optional so check if it is empty first
+        // start with the normal text and colour (rows get reused so I have to reset them)
+        pvh.tvExpiry.setTextColor(pvh.defaultExpiryColor);
+
         if (item.getExpiryDate() == null || item.getExpiryDate().isEmpty()) {
+            // expiry date is optional so there might not be one
             pvh.tvExpiry.setText("No expiry date");
         } else {
             pvh.tvExpiry.setText("Expires: " + item.getExpiryDate());
+
+            // only show the warning if the setting is on
+            if (expiryAlertsOn) {
+                int daysLeft = daysUntilExpiry(item.getExpiryDate());
+
+                if (daysLeft < 0) {
+                    pvh.tvExpiry.setText("EXPIRED on " + item.getExpiryDate());
+                    pvh.tvExpiry.setTextColor(Color.RED);
+                } else if (daysLeft == 0) {
+                    pvh.tvExpiry.setText("Expiring soon! Expires today");
+                    pvh.tvExpiry.setTextColor(Color.RED);
+                } else if (daysLeft <= 3) {
+                    pvh.tvExpiry.setText("Expiring soon! Expires in " + daysLeft
+                            + " day(s) (" + item.getExpiryDate() + ")");
+                    pvh.tvExpiry.setTextColor(Color.RED);
+                }
+            }
+        }
+    }
+
+    // works out how many days are left until the expiry date
+    // negative means it is already expired, 9999 means the date could not be read
+    private int daysUntilExpiry(String expiryDate) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            format.setLenient(false);
+
+            Date expiry = format.parse(expiryDate);
+
+            // today's date without the time (I format it and read it back)
+            Date today = format.parse(format.format(new Date()));
+
+            long difference = expiry.getTime() - today.getTime();
+            double oneDay = 1000 * 60 * 60 * 24;
+            return (int) Math.round(difference / oneDay);
+        } catch (Exception e) {
+            // the date was not a real date so I just don't show a warning
+            return 9999;
         }
     }
 
