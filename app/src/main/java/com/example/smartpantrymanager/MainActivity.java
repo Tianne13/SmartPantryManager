@@ -1,6 +1,8 @@
 package com.example.smartpantrymanager;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -111,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
     // onResume runs every time the screen shows up again,
     // so the list refreshes after I add, edit or delete something
+    // (and after I change the setting on the Settings screen)
     @Override
     protected void onResume() {
         super.onResume();
@@ -138,6 +141,12 @@ public class MainActivity extends AppCompatActivity {
                 // layout manager makes it a normal vertical list
                 rvPantry.setLayoutManager(new LinearLayoutManager(this));
                 PantryAdapter adapter = new PantryAdapter(pantryItems);
+
+                // read the expiry alerts setting that was saved on the Settings screen
+                SharedPreferences prefs = getSharedPreferences(
+                        SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+                boolean alertsOn = prefs.getBoolean(SettingsActivity.KEY_EXPIRY_ALERTS, false);
+                adapter.setExpiryAlertsOn(alertsOn);
 
                 // give the adapter the click listeners BEFORE setting the adapter
                 adapter.setOnItemClickListener(itemClickListener);
