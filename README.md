@@ -4,8 +4,8 @@ An Android app written in Java that helps reduce food waste. The user keeps trac
 
 Built for the **Mobile App Development 700** practical assignment at Richfield Graduate Institute of Technology.
 
-- **Student:** Tianne Willemse
-- **GitHub:** https://github.com/Tianne13/SmartPantryManager
+~Tianne Willemse
+
 
 ---
 
