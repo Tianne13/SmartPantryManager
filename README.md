@@ -1,31 +1,30 @@
-# Smart Pantry Manager
+# SMART PANTRY MANAGER
 
 An Android app written in Java that helps reduce food waste. The user keeps track of the ingredients they already have at home (their "pantry") and the app suggests recipes they can cook **using only what they already have**. A recipe is only suggested if the pantry has **every** ingredient it needs, in at least the required quantity.
 
 Built for the **Mobile App Development 700** practical assignment at Richfield Graduate Institute of Technology.
 
 - **Student:** Tianne Willemse
-- **Student number:** 402413818
 - **GitHub:** https://github.com/Tianne13/SmartPantryManager
 
 ---
 
-## Features
+## FEATURES
 
-- **Pantry management:** add, edit and delete pantry items (name, quantity, unit and an optional expiry date).
-- **Pantry list:** all ingredients shown in a RecyclerView with a custom adapter, loaded from the database.
-- **Strict recipe matching:** the Suggested Recipes screen only lists recipes where *every* ingredient is in the pantry in at least the required amount. A recipe with one missing ingredient is not shown.
-- **Smart matching:** names are cleaned up so "Tomato" and "tomatoes" match, and units are converted so "0.01 kg" and "10 g" are treated as the same amount.
-- **18 starter recipes** loaded into the database the first time the app runs, each with ingredients and preparation steps.
-- **Recipe detail screen:** full ingredient list and method for a selected recipe.
-- **Settings screen:** a toggle for expiring-soon alerts (saved with SharedPreferences). When it is on, pantry items that expire within 3 days, or have already expired, are shown in red.
-- **Friendly empty states:** messages such as "No recipes match your pantry yet - add more ingredients" instead of a blank screen.
-- **Input validation** on the add/edit form (name required, quantity must be a number above 0, expiry date must be in the format YYYY-MM-DD).
-- **Bottom navigation bar** to move between Pantry, Recipes and Settings.
+- **Pantry Management:** add, edit and delete pantry items (name, quantity, unit and an optional expiry date).
+- **Pantry List:** all ingredients shown in a RecyclerView with a custom adapter, loaded from the database.
+- **Strict Recipe Matching:** the Suggested Recipes screen only lists recipes where *every* ingredient is in the pantry in at least the required amount. A recipe with one missing ingredient is not shown.
+- **Smart Matching:** names are cleaned up so "Tomato" and "tomatoes" match, and units are converted so "0.01 kg" and "10 g" are treated as the same amount.
+- **18 Starter Recipes** loaded into the database the first time the app runs, each with ingredients and preparation steps.
+- **Recipe Detail Screen:** full ingredient list and method for a selected recipe.
+- **Settings Screen:** a toggle for expiring-soon alerts (saved with SharedPreferences). When it is on, pantry items that expire within 3 days, or have already expired, are shown in red.
+- **Friendly Empty States:** messages such as "No recipes match your pantry yet - add more ingredients" instead of a blank screen.
+- **Input Validation** on the add/edit form (name required, quantity must be a number above 0, expiry date must be in the format YYYY-MM-DD).
+- **Bottom Navigation Bar** to move between Pantry, Recipes and Settings.
 
 The app does **not** use Google Maps, any mapping SDK, or GPS/location services.
 
-## Database choice: SQLite
+## DATABASE CHOICE: SQLite
 
 I chose **SQLite** (using `SQLiteOpenHelper`) because:
 
@@ -34,7 +33,7 @@ I chose **SQLite** (using `SQLiteOpenHelper`) because:
 - a personal pantry app only needs a small amount of structured data, which suits a local database;
 - the data stays on the device after the app is closed and reopened.
 
-### Tables
+### TABLES
 
 | Table | Columns |
 |---|---|
@@ -44,7 +43,7 @@ I chose **SQLite** (using `SQLiteOpenHelper`) because:
 
 `recipe_ingredients.recipe_id` links each ingredient to its recipe (one recipe has many ingredients).
 
-## How the strict matching works
+## HOW THE STRICT MATCHING WORKS
 
 The logic is in `RecipeMatcher.java`:
 
@@ -53,7 +52,7 @@ The logic is in `RecipeMatcher.java`:
 3. For each ingredient a recipe needs, the amounts of all matching pantry rows are added up and compared with the amount required.
 4. If even **one** ingredient is missing or not enough, the whole recipe is rejected.
 
-## Project structure
+## PROJECT STRUCTURE
 
 | File | Purpose |
 |---|---|
@@ -68,7 +67,7 @@ The logic is in `RecipeMatcher.java`:
 | `RecipeMatcher` | The strict-matching logic |
 | `PantryItem`, `Recipe`, `RecipeIngredient` | Model classes |
 
-## Setup and run instructions
+## SETUP & RUN INSTRUCTIONS
 
 **Requirements**
 
@@ -89,7 +88,7 @@ The logic is in `RecipeMatcher.java`:
 
 The recipes are added to the database automatically the first time the app runs. No other setup is needed.
 
-## How to use the app
+## HOW TO USE THE APP
 
 1. On the **Pantry** screen, tap **Add Ingredient** and enter what you have at home.
 2. Tap a row to edit an ingredient, or tap **Delete** to remove it.
@@ -97,14 +96,14 @@ The recipes are added to the database automatically the first time the app runs.
 4. Tap a recipe to see its ingredients and method.
 5. Open **Settings** to turn expiring-soon alerts on or off.
 
-## Known limitations
+## KNOWN LIMITATIONS
 
 - Weight units (g, kg), volume units (ml, l, tsp, tbsp, cup) and counts (pcs) cannot be converted into each other without extra data such as ingredient densities. When the units are of different kinds, the app only checks that the ingredient is present.
 - Plural handling covers common English patterns only.
 - The expiry date is typed in as text (YYYY-MM-DD) and could be replaced with a date picker.
 
-## Possible future improvements
+## POSSIBLE FUTURE IMPROVEMENTS
 
-- An "Almost There" list of recipes that are missing only one ingredient.
+- An "AlmostThere" list of recipes that are missing only one ingredient.
 - A date picker for expiry dates.
 - Users adding their own recipes.
